@@ -1,65 +1,158 @@
-import Image from "next/image";
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import {
+  formatDueDelay,
+  getStatus,
+  type ComputedStatus,
+  type PlantStatus,
+} from "@/lib/status";
 
-export default function Home() {
+// Le dashboard doit refléter les arrosages en temps réel : rendu à chaque requête.
+export const dynamic = "force-dynamic";
+
+const STATUS_ORDER: Record<PlantStatus, number> = { late: 0, due: 1, ok: 2 };
+
+const STATUS_STYLES: Record<
+  PlantStatus,
+  { badge: string; border: string; dot: string }
+> = {
+  late: {
+    badge: "bg-status-late-bg text-status-late",
+    border: "border-l-status-late",
+    dot: "bg-status-late",
+  },
+  due: {
+    badge: "bg-status-due-bg text-status-due",
+    border: "border-l-status-due",
+    dot: "bg-status-due",
+  },
+  ok: {
+    badge: "bg-status-ok-bg text-status-ok",
+    border: "border-l-status-ok",
+    dot: "bg-status-ok",
+  },
+};
+
+export default async function DashboardPage() {
+  const plants = await prisma.plant.findMany({
+    include: { waterings: true },
+  });
+
+  const now = new Date();
+  const withStatus = plants
+    .map((plant) => ({ plant, computed: getStatus(plant, now) }))
+    .sort((a, b) => {
+      const byStatus =
+        STATUS_ORDER[a.computed.status] - STATUS_ORDER[b.computed.status];
+      if (byStatus !== 0) return byStatus;
+      return a.computed.daysUntilDue - b.computed.daysUntilDue;
+    });
+
+  const counts = {
+    late: withStatus.filter((p) => p.computed.status === "late").length,
+    due: withStatus.filter((p) => p.computed.status === "due").length,
+    ok: withStatus.filter((p) => p.computed.status === "ok").length,
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <div className="flex flex-col gap-8">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-itroom">
+          Tableau de bord
+        </h1>
+        <p className="mt-1 text-sm text-foreground/60">
+          {plants.length} plante{plants.length > 1 ? "s" : ""} suivie
+          {plants.length > 1 ? "s" : ""} · état du parc en temps réel
+        </p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+        <CounterTile status="late" label="En retard" value={counts.late} />
+        <CounterTile status="due" label="À arroser" value={counts.due} />
+        <CounterTile status="ok" label="À jour" value={counts.ok} />
+      </div>
+
+      {withStatus.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {withStatus.map(({ plant, computed }) => (
+            <PlantCard
+              key={plant.id}
+              id={plant.id}
+              name={plant.name}
+              location={plant.location}
+              computed={computed}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          ))}
         </div>
-      </main>
+      )}
+    </div>
+  );
+}
+
+function CounterTile({
+  status,
+  label,
+  value,
+}: {
+  status: PlantStatus;
+  label: string;
+  value: number;
+}) {
+  const styles = STATUS_STYLES[status];
+  return (
+    <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
+      <div className="flex items-center gap-2">
+        <span className={`h-2.5 w-2.5 rounded-full ${styles.dot}`} />
+        <span className="text-xs font-medium uppercase tracking-wide text-foreground/60">
+          {label}
+        </span>
+      </div>
+      <p className="mt-2 text-3xl font-semibold text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function PlantCard({
+  id,
+  name,
+  location,
+  computed,
+}: {
+  id: string;
+  name: string;
+  location: string;
+  computed: ComputedStatus;
+}) {
+  const styles = STATUS_STYLES[computed.status];
+  return (
+    <Link
+      href={`/plant/${id}`}
+      className={`flex flex-col gap-3 rounded-xl border border-border border-l-4 bg-card p-5 transition-shadow hover:shadow-md ${styles.border}`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <h2 className="font-semibold text-foreground">{name}</h2>
+        <span
+          className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${styles.badge}`}
+        >
+          {computed.label}
+        </span>
+      </div>
+      <p className="text-sm text-foreground/60">{location}</p>
+      <p className="mt-auto text-xs text-foreground/50">
+        Prochain arrosage {formatDueDelay(computed.daysUntilDue)}
+      </p>
+    </Link>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center">
+      <p className="text-foreground/60">
+        Aucune plante pour l'instant. Ajoutez-en depuis l'espace admin.
+      </p>
     </div>
   );
 }

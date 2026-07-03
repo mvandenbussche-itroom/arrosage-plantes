@@ -1,26 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f6f9;
+  --foreground: #12233a;
+
+  /* Charte itroom */
+  --itroom: #145a8e;
+  --itroom-dark: #0f4570;
+  --itroom-light: #e7eff5;
+
+  /* Statuts d'arrosage */
+  --status-ok: #2f9e64;
+  --status-ok-bg: #e6f5ec;
+  --status-due: #d98324;
+  --status-due-bg: #fbf0e0;
+  --status-late: #d1483b;
+  --status-late-bg: #fbe6e3;
+
+  --card: #ffffff;
+  --border: #e2e8f0;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-itroom: var(--itroom);
+  --color-itroom-dark: var(--itroom-dark);
+  --color-itroom-light: var(--itroom-light);
+  --color-status-ok: var(--status-ok);
+  --color-status-ok-bg: var(--status-ok-bg);
+  --color-status-due: var(--status-due);
+  --color-status-due-bg: var(--status-due-bg);
+  --color-status-late: var(--status-late);
+  --color-status-late-bg: var(--status-late-bg);
+  --color-card: var(--card);
+  --color-border: var(--border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
