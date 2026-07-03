@@ -32,7 +32,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <header className="border-b border-border bg-card">
-          <div className="mx-auto flex w-full max-w-5xl items-center gap-3 px-5 py-4">
+          <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-5 py-4">
             <Link href="/" className="flex items-center gap-3">
               <Image
                 src="/logo-itroom-bleu.png"
@@ -46,6 +46,14 @@ export default function RootLayout({
                 / Arrosage des plantes
               </span>
             </Link>
+            <nav className="flex items-center gap-4 text-sm font-medium">
+              <Link href="/" className="text-foreground/60 hover:text-itroom">
+                Tableau de bord
+              </Link>
+              <Link href="/admin" className="text-foreground/60 hover:text-itroom">
+                Admin
+              </Link>
+            </nav>
           </div>
         </header>
         <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-8">
