@@ -115,7 +115,15 @@ export function ScanFab() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Scanner un QR code"
-        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 touch-manipulation items-center justify-center rounded-full bg-itroom text-white shadow-lg transition active:scale-95"
+        // bottom/right calculés avec env(safe-area-inset-*) : sur téléphone,
+        // un simple "bottom-6" tombe dans la zone du geste système (barre
+        // d'accueil iPhone, geste retour Android) et les taps n'atteignent
+        // jamais le bouton. Nécessite viewportFit: "cover" dans layout.tsx.
+        className="fixed z-40 flex h-14 w-14 touch-manipulation items-center justify-center rounded-full bg-itroom text-white shadow-lg transition active:scale-95"
+        style={{
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 1.5rem)",
+          right: "calc(env(safe-area-inset-right, 0px) + 1.5rem)",
+        }}
       >
         <CameraIcon />
       </button>
@@ -127,7 +135,10 @@ export function ScanFab() {
           aria-labelledby={titleId}
           className="fixed inset-0 z-50 flex flex-col bg-black"
         >
-          <div className="flex items-center justify-between px-4 py-3">
+          <div
+            className="flex items-center justify-between px-4 py-3"
+            style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.75rem)" }}
+          >
             <p id={titleId} className="text-sm font-medium text-white">
               Scanner le QR d&apos;une plante
             </p>
@@ -150,7 +161,10 @@ export function ScanFab() {
             />
           </div>
 
-          <div className="px-4 py-4 text-center">
+          <div
+            className="px-4 pt-4 text-center"
+            style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}
+          >
             {error ? (
               <p className="text-sm font-medium text-status-late">{error}</p>
             ) : (
