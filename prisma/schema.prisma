@@ -16,6 +16,7 @@ model Plant {
   location      String    // ex: "2e étage - open space Nord"
   frequencyDays Int       // fréquence d'arrosage en jours
   createdAt     DateTime  @default(now())
+  qrCode        String?   // data URL PNG du QR (généré une seule fois, encode l'URL de la fiche)
   waterings     Watering[]
 }
 

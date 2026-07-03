@@ -45,7 +45,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <header className="border-b border-border bg-card">
+        <header className="border-b border-border bg-card print:hidden">
           <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-5 py-4">
             <Link href="/" className="flex items-center gap-3">
               <Image

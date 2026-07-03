@@ -1,7 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatDueDelay, getStatus, STATUS_STYLES } from "@/lib/status";
 import { CreatePlantForm } from "./create-plant-form";
+import { GenerateQrButton } from "./generate-qr-button";
 
 // La liste doit refléter les ajouts et arrosages en temps réel.
 export const dynamic = "force-dynamic";
@@ -16,13 +18,21 @@ export default async function AdminPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-itroom">
-          Administration
-        </h1>
-        <p className="mt-1 text-sm text-foreground/60">
-          Gérer le parc de plantes · {plants.length} au total
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-itroom">
+            Administration
+          </h1>
+          <p className="mt-1 text-sm text-foreground/60">
+            Gérer le parc de plantes · {plants.length} au total
+          </p>
+        </div>
+        <Link
+          href="/admin/print"
+          className="shrink-0 rounded-lg border border-itroom px-3 py-1.5 text-sm font-medium text-itroom transition hover:bg-itroom-light"
+        >
+          🖨️ Imprimer les QR
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.4fr]">
@@ -64,12 +74,35 @@ export default async function AdminPage() {
                         {formatDueDelay(computed.daysUntilDue)}
                       </p>
                     </div>
-                    <Link
-                      href={`/plant/${plant.id}`}
-                      className="shrink-0 text-sm font-medium text-itroom hover:underline"
-                    >
-                      Fiche →
-                    </Link>
+                    <div className="flex shrink-0 flex-col items-end gap-2">
+                      {plant.qrCode ? (
+                        <Link
+                          href={`/admin/print?id=${plant.id}`}
+                          title="Voir / imprimer le QR"
+                          className="flex flex-col items-center gap-1"
+                        >
+                          <Image
+                            src={plant.qrCode}
+                            alt={`QR code de ${plant.name}`}
+                            width={64}
+                            height={64}
+                            unoptimized
+                            className="rounded border border-border bg-white p-1"
+                          />
+                          <span className="text-xs text-itroom hover:underline">
+                            Imprimer
+                          </span>
+                        </Link>
+                      ) : (
+                        <GenerateQrButton plantId={plant.id} />
+                      )}
+                      <Link
+                        href={`/plant/${plant.id}`}
+                        className="text-sm font-medium text-itroom hover:underline"
+                      >
+                        Fiche →
+                      </Link>
+                    </div>
                   </li>
                 );
               })}

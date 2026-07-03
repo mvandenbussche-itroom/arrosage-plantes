@@ -1,5 +1,6 @@
 "use server";
 
+import QRCode from "qrcode";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
@@ -47,4 +48,32 @@ export async function createPlant(
   revalidatePath("/admin");
 
   return { status: "success", message: `« ${name} » a été ajoutée.` };
+}
+
+// Génère (une seule fois) le QR code d'une plante. Le QR encode l'URL de la
+// fiche, à scanner sur le pot. S'il existe déjà, on ne le refait pas : le QR
+// est stable et un regénération inutile ferait juste réécrire la même image.
+export async function generateQrCode(formData: FormData) {
+  const plantId = formData.get("plantId");
+  if (typeof plantId !== "string" || plantId.length === 0) return;
+
+  const plant = await prisma.plant.findUnique({ where: { id: plantId } });
+  if (!plant) return;
+
+  // Garde d'idempotence : déjà généré -> on ne touche à rien.
+  if (plant.qrCode) return;
+
+  const baseUrl = (process.env.BASE_URL ?? "http://localhost:3000").replace(
+    /\/$/,
+    "",
+  );
+  const target = `${baseUrl}/plant/${plantId}`;
+  const dataUrl = await QRCode.toDataURL(target, { width: 320, margin: 2 });
+
+  await prisma.plant.update({
+    where: { id: plantId },
+    data: { qrCode: dataUrl },
+  });
+
+  revalidatePath("/admin");
 }
