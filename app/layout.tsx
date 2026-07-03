@@ -22,12 +22,16 @@ export const metadata: Metadata = {
 };
 
 // Le viewport (width=device-width...) est déjà défini par défaut par Next.js.
-// On ajoute juste la couleur de la barre du navigateur mobile (charte itroom)
-// et color-scheme pour éviter un rendu sombre inattendu des champs/scrollbars,
-// le design étant volontairement clair uniquement.
+// On ajoute la couleur de la barre du navigateur mobile (charte itroom),
+// color-scheme pour éviter un rendu sombre inattendu des champs/scrollbars
+// (le design est volontairement clair uniquement), et viewportFit: "cover"
+// qui active les variables env(safe-area-inset-*) sur iOS — indispensable
+// pour que le bouton de scan (fixed, en bas de l'écran) ne se retrouve pas
+// sous la zone du geste système (barre d'accueil iPhone / geste Android).
 export const viewport: Viewport = {
   themeColor: "#145a8e",
   colorScheme: "light",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
