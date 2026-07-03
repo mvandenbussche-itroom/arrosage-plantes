@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getPlantQrDataUrl } from "@/lib/qr";
 import { formatDueDelay, getStatus, STATUS_STYLES } from "@/lib/status";
 import { CreatePlantForm } from "./create-plant-form";
-import { GenerateQrButton } from "./generate-qr-button";
 
 // La liste doit refléter les ajouts et arrosages en temps réel.
 export const dynamic = "force-dynamic";
@@ -15,6 +15,15 @@ export default async function AdminPage() {
   });
 
   const now = new Date();
+
+  // QR généré à la volée pour chaque plante (depuis BASE_URL courant).
+  const rows = await Promise.all(
+    plants.map(async (plant) => ({
+      plant,
+      computed: getStatus(plant, now),
+      qr: await getPlantQrDataUrl(plant.id),
+    })),
+  );
 
   return (
     <div className="flex flex-col gap-8">
@@ -47,8 +56,7 @@ export default async function AdminPage() {
             </div>
           ) : (
             <ul className="flex flex-col gap-3">
-              {plants.map((plant) => {
-                const computed = getStatus(plant, now);
+              {rows.map(({ plant, computed, qr }) => {
                 const styles = STATUS_STYLES[computed.status];
                 return (
                   <li
@@ -75,27 +83,23 @@ export default async function AdminPage() {
                       </p>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-2">
-                      {plant.qrCode ? (
-                        <Link
-                          href={`/admin/print?id=${plant.id}`}
-                          title="Voir / imprimer le QR"
-                          className="flex flex-col items-center gap-1"
-                        >
-                          <Image
-                            src={plant.qrCode}
-                            alt={`QR code de ${plant.name}`}
-                            width={64}
-                            height={64}
-                            unoptimized
-                            className="rounded border border-border bg-white p-1"
-                          />
-                          <span className="text-xs text-itroom hover:underline">
-                            Imprimer
-                          </span>
-                        </Link>
-                      ) : (
-                        <GenerateQrButton plantId={plant.id} />
-                      )}
+                      <Link
+                        href={`/admin/print?id=${plant.id}`}
+                        title="Voir / imprimer le QR"
+                        className="flex flex-col items-center gap-1"
+                      >
+                        <Image
+                          src={qr}
+                          alt={`QR code de ${plant.name}`}
+                          width={64}
+                          height={64}
+                          unoptimized
+                          className="rounded border border-border bg-white p-1"
+                        />
+                        <span className="text-xs text-itroom hover:underline">
+                          Imprimer
+                        </span>
+                      </Link>
                       <Link
                         href={`/plant/${plant.id}`}
                         className="text-sm font-medium text-itroom hover:underline"

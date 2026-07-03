@@ -1,11 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Origines autorisées à joindre le serveur de dev (téléphones sur le LAN +
+  // tunnel https ngrok utilisé pour la démo). Les wildcards sont supportés.
+  allowedDevOrigins: ["192.168.2.159", "*.ngrok-free.app", "*.ngrok.app"],
+
+  experimental: {
+    serverActions: {
+      // Sans ça, le bouton "J'ai arrosé" (Server Action) est rejeté quand la
+      // page est ouverte via le domaine ngrok : Next compare l'Origin au Host.
+      allowedOrigins: ["*.ngrok-free.app", "*.ngrok.app"],
+    },
+  },
 };
-// next.config.js
-module.exports = {
-  allowedDevOrigins: ['192.168.2.175'],
-}
 
 export default nextConfig;

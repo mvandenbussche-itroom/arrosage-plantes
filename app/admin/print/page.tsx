@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getPlantQrDataUrl } from "@/lib/qr";
 import { PrintButton } from "./print-button";
 
 export const dynamic = "force-dynamic";
@@ -12,11 +13,18 @@ export default async function PrintPage({
 }) {
   const { id } = await searchParams;
 
-  // On n'imprime que les plantes qui ont déjà un QR. `?id=` cible une plante.
+  // Toutes les plantes (ou une seule via `?id=`). Le QR est généré à la volée.
   const plants = await prisma.plant.findMany({
-    where: { qrCode: { not: null }, ...(id ? { id } : {}) },
+    where: id ? { id } : undefined,
     orderBy: { name: "asc" },
   });
+
+  const labels = await Promise.all(
+    plants.map(async (plant) => ({
+      plant,
+      qr: await getPlantQrDataUrl(plant.id),
+    })),
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -41,20 +49,19 @@ export default async function PrintPage({
         </div>
       </div>
 
-      {plants.length === 0 ? (
+      {labels.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border bg-card p-10 text-center text-foreground/60 print:hidden">
-          Aucun QR généré pour l&apos;instant. Génère-les depuis l&apos;espace
-          admin.
+          Aucune plante à imprimer. Ajoutez-en depuis l&apos;espace admin.
         </p>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          {plants.map((plant) => (
+          {labels.map(({ plant, qr }) => (
             <div
               key={plant.id}
               className="flex break-inside-avoid flex-col items-center gap-2 rounded-xl border border-border bg-white p-4 text-center"
             >
               <Image
-                src={plant.qrCode!}
+                src={qr}
                 alt={`QR code de ${plant.name}`}
                 width={180}
                 height={180}
