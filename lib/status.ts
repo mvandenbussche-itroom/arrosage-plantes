@@ -74,3 +74,32 @@ export function formatDueDelay(daysUntilDue: number): string {
   if (daysUntilDue > 0) return `dans ${daysUntilDue} j`;
   return `${Math.abs(daysUntilDue)} j de retard`;
 }
+
+// Ordre d'affichage des statuts (les plus urgents d'abord) et classes Tailwind
+// associées. Partagé entre le dashboard et la fiche plante pour rester cohérent.
+export const STATUS_ORDER: Record<PlantStatus, number> = {
+  late: 0,
+  due: 1,
+  ok: 2,
+};
+
+export const STATUS_STYLES: Record<
+  PlantStatus,
+  { badge: string; border: string; dot: string }
+> = {
+  late: {
+    badge: "bg-status-late-bg text-status-late",
+    border: "border-l-status-late",
+    dot: "bg-status-late",
+  },
+  due: {
+    badge: "bg-status-due-bg text-status-due",
+    border: "border-l-status-due",
+    dot: "bg-status-due",
+  },
+  ok: {
+    badge: "bg-status-ok-bg text-status-ok",
+    border: "border-l-status-ok",
+    dot: "bg-status-ok",
+  },
+};

@@ -3,35 +3,14 @@ import { prisma } from "@/lib/prisma";
 import {
   formatDueDelay,
   getStatus,
+  STATUS_ORDER,
+  STATUS_STYLES,
   type ComputedStatus,
   type PlantStatus,
 } from "@/lib/status";
 
 // Le dashboard doit refléter les arrosages en temps réel : rendu à chaque requête.
 export const dynamic = "force-dynamic";
-
-const STATUS_ORDER: Record<PlantStatus, number> = { late: 0, due: 1, ok: 2 };
-
-const STATUS_STYLES: Record<
-  PlantStatus,
-  { badge: string; border: string; dot: string }
-> = {
-  late: {
-    badge: "bg-status-late-bg text-status-late",
-    border: "border-l-status-late",
-    dot: "bg-status-late",
-  },
-  due: {
-    badge: "bg-status-due-bg text-status-due",
-    border: "border-l-status-due",
-    dot: "bg-status-due",
-  },
-  ok: {
-    badge: "bg-status-ok-bg text-status-ok",
-    border: "border-l-status-ok",
-    dot: "bg-status-ok",
-  },
-};
 
 export default async function DashboardPage() {
   const plants = await prisma.plant.findMany({
@@ -151,7 +130,7 @@ function EmptyState() {
   return (
     <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center">
       <p className="text-foreground/60">
-        Aucune plante pour l'instant. Ajoutez-en depuis l'espace admin.
+        Aucune plante pour l&apos;instant. Ajoutez-en depuis l&apos;espace admin.
       </p>
     </div>
   );
