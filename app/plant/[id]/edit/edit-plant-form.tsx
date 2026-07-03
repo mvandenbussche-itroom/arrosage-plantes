@@ -1,34 +1,56 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
-import { createPlant, type CreatePlantState } from "./actions";
+import { useActionState, useState } from "react";
+import { updatePlant, type UpdatePlantState } from "../actions";
+import { PlantAvatar } from "@/app/plant-avatar";
 
-const initialState: CreatePlantState = { status: "idle" };
+const initialState: UpdatePlantState = { status: "idle" };
 
 const inputClass =
   "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-itroom";
 
-export function CreatePlantForm() {
+export function EditPlantForm({
+  plantId,
+  name,
+  location,
+  frequencyDays,
+  imageUrl,
+}: {
+  plantId: string;
+  name: string;
+  location: string;
+  frequencyDays: number;
+  imageUrl: string | null;
+}) {
   const [state, formAction, isPending] = useActionState(
-    createPlant,
+    updatePlant,
     initialState,
   );
-  const formRef = useRef<HTMLFormElement>(null);
-
-  // Après un ajout réussi, on vide le formulaire pour enchaîner les saisies.
-  useEffect(() => {
-    if (state.status === "success") {
-      formRef.current?.reset();
-    }
-  }, [state]);
+  // Coche "supprimer la photo" désactivée dès qu'on choisit un nouveau
+  // fichier : les deux actions n'ont pas de sens combinées.
+  const [removeImage, setRemoveImage] = useState(false);
 
   return (
     <form
-      ref={formRef}
       action={formAction}
       className="flex flex-col gap-4 rounded-xl border border-border bg-card p-5"
     >
-      <h2 className="font-semibold text-foreground">Ajouter une plante</h2>
+      <input type="hidden" name="plantId" value={plantId} />
+
+      <div className="flex items-center gap-4">
+        <PlantAvatar imageUrl={removeImage ? null : imageUrl} name={name} size="lg" />
+        {imageUrl && (
+          <label className="flex items-center gap-2 text-sm text-foreground/60">
+            <input
+              type="checkbox"
+              name="removeImage"
+              checked={removeImage}
+              onChange={(e) => setRemoveImage(e.target.checked)}
+            />
+            Supprimer la photo
+          </label>
+        )}
+      </div>
 
       <div className="flex flex-col gap-1">
         <label htmlFor="name" className="text-sm text-foreground/60">
@@ -39,7 +61,7 @@ export function CreatePlantForm() {
           name="name"
           type="text"
           required
-          placeholder="Monstera"
+          defaultValue={name}
           className={inputClass}
         />
       </div>
@@ -53,7 +75,7 @@ export function CreatePlantForm() {
           name="location"
           type="text"
           required
-          placeholder="2e étage - open space Nord"
+          defaultValue={location}
           className={inputClass}
         />
       </div>
@@ -68,20 +90,23 @@ export function CreatePlantForm() {
           type="number"
           min={1}
           required
-          placeholder="7"
+          defaultValue={frequencyDays}
           className={inputClass}
         />
       </div>
 
       <div className="flex flex-col gap-1">
         <label htmlFor="image" className="text-sm text-foreground/60">
-          Photo (optionnel)
+          {imageUrl ? "Remplacer la photo" : "Photo (optionnel)"}
         </label>
         <input
           id="image"
           name="image"
           type="file"
           accept="image/jpeg,image/png,image/webp"
+          onChange={(e) => {
+            if (e.target.files?.length) setRemoveImage(false);
+          }}
           className={`${inputClass} file:mr-3 file:rounded-md file:border-0 file:bg-itroom-light file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-itroom`}
         />
       </div>
@@ -91,14 +116,9 @@ export function CreatePlantForm() {
         disabled={isPending}
         className="rounded-lg bg-itroom px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-itroom-dark disabled:opacity-60"
       >
-        {isPending ? "Ajout…" : "Ajouter la plante"}
+        {isPending ? "Enregistrement…" : "Enregistrer"}
       </button>
 
-      {state.status === "success" && (
-        <p className="text-sm font-medium text-status-ok" role="status">
-          {state.message}
-        </p>
-      )}
       {state.status === "error" && (
         <p className="text-sm font-medium text-status-late" role="alert">
           {state.message}

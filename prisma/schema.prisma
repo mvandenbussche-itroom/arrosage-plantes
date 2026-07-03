@@ -15,6 +15,7 @@ model Plant {
   name          String
   location      String    // ex: "2e étage - open space Nord"
   frequencyDays Int       // fréquence d'arrosage en jours
+  imageUrl      String?   // chemin public de la photo de profil (ex: /uploads/plants/xxx.jpg)
   createdAt     DateTime  @default(now())
   waterings     Watering[]
   // Pas de champ QR : le QR est généré à la volée depuis BASE_URL (cf. lib/qr.ts),

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatDueDelay, getStatus, STATUS_STYLES } from "@/lib/status";
+import { PlantAvatar } from "@/app/plant-avatar";
 import { WaterButton } from "./water-button";
 
 // Page ouverte par le scan du QR code collé sur le pot : le statut doit
@@ -51,13 +52,22 @@ export default async function PlantPage({
         className={`flex flex-col gap-4 rounded-2xl border border-border border-l-4 bg-card p-6 ${styles.border}`}
       >
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="break-words text-xl font-semibold text-foreground">
-              {plant.name}
-            </h1>
-            <p className="break-words text-sm text-foreground/60">
-              {plant.location}
-            </p>
+          <div className="flex min-w-0 items-center gap-4">
+            <PlantAvatar imageUrl={plant.imageUrl} name={plant.name} size="lg" />
+            <div className="min-w-0">
+              <h1 className="break-words text-xl font-semibold text-foreground">
+                {plant.name}
+              </h1>
+              <p className="break-words text-sm text-foreground/60">
+                {plant.location}
+              </p>
+              <Link
+                href={`/plant/${plant.id}/edit`}
+                className="mt-1 inline-block text-xs font-medium text-itroom hover:underline"
+              >
+                Modifier
+              </Link>
+            </div>
           </div>
           <span
             className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${styles.badge}`}
