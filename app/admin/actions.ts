@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { InvalidPlantImageError, savePlantImage } from "@/lib/plant-image";
 
@@ -36,6 +37,11 @@ export async function createPlant(
   _prevState: CreatePlantState,
   formData: FormData,
 ): Promise<CreatePlantState> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { status: "error", message: "Tu dois être connecté pour ajouter une plante." };
+  }
+
   const name = (formData.get("name") ?? "").toString().trim();
   const location = (formData.get("location") ?? "").toString().trim();
   const frequencyDays = Number.parseInt(

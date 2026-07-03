@@ -26,6 +26,28 @@ model Watering {
   id        String   @id @default(cuid())
   plantId   String
   plant     Plant    @relation(fields: [plantId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   wateredAt DateTime @default(now())
-  // pas de user : scan anonyme
+  // Le scan reste anonyme (userId null) si personne n'est connecté au moment
+  // du tap "J'ai arrosé" : voir plan technique §8, on ne veut pas de friction.
+}
+
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique // restreint à @itroom.fr à l'inscription
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  sessions     Session[]
+  waterings    Watering[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique // sha256 du token brut envoyé au client (le cookie ne contient jamais le hash)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }
