@@ -46,3 +46,6 @@ next-env.d.ts
 *.db-journal
 
 certificates
+
+# photos de plantes uploadées par les utilisateurs (contenu runtime, pas du code)
+/public/uploads

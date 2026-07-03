@@ -115,14 +115,14 @@ export function ScanFab() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Scanner un QR code"
-        // bottom/right calculés avec env(safe-area-inset-*) : sur téléphone,
-        // un simple "bottom-6" tombe dans la zone du geste système (barre
+        // bottom calculé avec env(safe-area-inset-*) : sur téléphone, un
+        // simple "bottom-6" tombe dans la zone du geste système (barre
         // d'accueil iPhone, geste retour Android) et les taps n'atteignent
         // jamais le bouton. Nécessite viewportFit: "cover" dans layout.tsx.
-        className="fixed z-40 flex h-14 w-14 touch-manipulation items-center justify-center rounded-full bg-itroom text-white shadow-lg transition active:scale-95"
+        // left-1/2 + translateX(-50%) : centré horizontalement.
+        className="fixed left-1/2 z-40 flex h-14 w-14 -translate-x-1/2 touch-manipulation items-center justify-center rounded-full bg-itroom text-white shadow-lg transition active:scale-95"
         style={{
           bottom: "calc(env(safe-area-inset-bottom, 0px) + 1.5rem)",
-          right: "calc(env(safe-area-inset-right, 0px) + 1.5rem)",
         }}
       >
         <CameraIcon />

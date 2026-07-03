@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getPlantQrDataUrl } from "@/lib/qr";
 import { formatDueDelay, getStatus, STATUS_STYLES } from "@/lib/status";
+import { PlantAvatar } from "@/app/plant-avatar";
 import { CreatePlantForm } from "./create-plant-form";
 
 // La liste doit refléter les ajouts et arrosages en temps réel.
@@ -63,24 +64,27 @@ export default async function AdminPage() {
                     key={plant.id}
                     className={`flex items-center justify-between gap-4 rounded-xl border border-border border-l-4 bg-card p-4 ${styles.border}`}
                   >
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h2 className="truncate font-semibold text-foreground">
-                          {plant.name}
-                        </h2>
-                        <span
-                          className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${styles.badge}`}
-                        >
-                          {computed.label}
-                        </span>
+                    <div className="flex min-w-0 items-center gap-3">
+                      <PlantAvatar imageUrl={plant.imageUrl} name={plant.name} />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h2 className="truncate font-semibold text-foreground">
+                            {plant.name}
+                          </h2>
+                          <span
+                            className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${styles.badge}`}
+                          >
+                            {computed.label}
+                          </span>
+                        </div>
+                        <p className="truncate text-sm text-foreground/60">
+                          {plant.location}
+                        </p>
+                        <p className="mt-0.5 text-xs text-foreground/50">
+                          tous les {plant.frequencyDays} j · prochain arrosage{" "}
+                          {formatDueDelay(computed.daysUntilDue)}
+                        </p>
                       </div>
-                      <p className="truncate text-sm text-foreground/60">
-                        {plant.location}
-                      </p>
-                      <p className="mt-0.5 text-xs text-foreground/50">
-                        tous les {plant.frequencyDays} j · prochain arrosage{" "}
-                        {formatDueDelay(computed.daysUntilDue)}
-                      </p>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-2">
                       <Link
