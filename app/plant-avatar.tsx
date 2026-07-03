@@ -2,7 +2,9 @@ import Image from "next/image";
 
 const SIZE_CLASSES = {
   sm: "h-11 w-11 text-base",
-  lg: "h-24 w-24 text-3xl",
+  // Plus petit par défaut : sur un écran étroit, un avatar 96px laisse trop
+  // peu de place au nom de la plante à côté (cf. fiche plante).
+  lg: "h-16 w-16 text-xl sm:h-24 sm:w-24 sm:text-3xl",
 } as const;
 
 type PlantAvatarSize = keyof typeof SIZE_CLASSES;

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { EditPlantForm } from "./edit-plant-form";
 
@@ -11,6 +12,8 @@ export default async function EditPlantPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+
+  await requireUser(`/plant/${id}/edit`);
 
   const plant = await prisma.plant.findUnique({ where: { id } });
 

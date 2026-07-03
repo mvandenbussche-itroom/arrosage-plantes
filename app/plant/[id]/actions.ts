@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { deletePlantImage, InvalidPlantImageError, savePlantImage } from "@/lib/plant-image";
 
@@ -18,7 +19,9 @@ export type UpdatePlantState = {
 };
 
 // Enregistre un arrosage. Appelée depuis la fiche plante ouverte par le scan
-// du QR code : aucune authentification (scan anonyme, cf. plan technique §8).
+// du QR code : aucune authentification requise (scan anonyme, cf. plan
+// technique §8). Si la personne est connectée, l'arrosage lui est quand même
+// attribué pour alimenter l'historique — sans lui imposer de se reconnecter.
 export async function waterPlant(
   _prevState: WaterState,
   formData: FormData,
@@ -30,7 +33,8 @@ export async function waterPlant(
   }
 
   try {
-    await prisma.watering.create({ data: { plantId } });
+    const user = await getCurrentUser();
+    await prisma.watering.create({ data: { plantId, userId: user?.id } });
   } catch (err) {
     // Cas typique : id périmé (plante supprimée) -> la contrainte FK échoue.
     console.error("waterPlant failed", err);
@@ -84,6 +88,11 @@ export async function updatePlant(
   _prevState: UpdatePlantState,
   formData: FormData,
 ): Promise<UpdatePlantState> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { status: "error", message: "Tu dois être connecté pour modifier une plante." };
+  }
+
   const id = (formData.get("plantId") ?? "").toString();
   const name = (formData.get("name") ?? "").toString().trim();
   const location = (formData.get("location") ?? "").toString().trim();

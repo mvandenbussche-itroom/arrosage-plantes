@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import "./globals.css";
+import { getCurrentUser } from "@/lib/auth";
+import { LogoutButton } from "./logout-button";
 import { ScanFab } from "./scan-fab";
 
 const geistSans = Geist({
@@ -34,11 +36,13 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getCurrentUser();
+
   return (
     <html
       lang="fr"
@@ -67,6 +71,18 @@ export default function RootLayout({
               <Link href="/admin" className="text-foreground/60 hover:text-itroom">
                 Admin
               </Link>
+              {user ? (
+                <>
+                  <span className="hidden text-foreground/40 sm:inline">
+                    {user.name}
+                  </span>
+                  <LogoutButton />
+                </>
+              ) : (
+                <Link href="/login" className="text-foreground/60 hover:text-itroom">
+                  Connexion
+                </Link>
+              )}
             </nav>
           </div>
         </header>

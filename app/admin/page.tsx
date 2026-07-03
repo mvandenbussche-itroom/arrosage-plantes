@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getPlantQrDataUrl } from "@/lib/qr";
 import { formatDueDelay, getStatus, STATUS_STYLES } from "@/lib/status";
@@ -10,6 +11,8 @@ import { CreatePlantForm } from "./create-plant-form";
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
+  await requireUser("/admin");
+
   const plants = await prisma.plant.findMany({
     include: { waterings: true },
     orderBy: { name: "asc" },

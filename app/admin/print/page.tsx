@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getPlantQrDataUrl } from "@/lib/qr";
 import { PrintButton } from "./print-button";
@@ -11,6 +12,8 @@ export default async function PrintPage({
 }: {
   searchParams: Promise<{ id?: string }>;
 }) {
+  await requireUser("/admin/print");
+
   const { id } = await searchParams;
 
   // Toutes les plantes (ou une seule via `?id=`). Le QR est généré à la volée.
