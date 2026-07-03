@@ -45,7 +45,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <CounterTile status="late" label="En retard" value={counts.late} />
         <CounterTile status="due" label="À arroser" value={counts.due} />
         <CounterTile status="ok" label="À jour" value={counts.ok} />
@@ -81,14 +81,18 @@ function CounterTile({
 }) {
   const styles = STATUS_STYLES[status];
   return (
-    <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
-      <div className="flex items-center gap-2">
-        <span className={`h-2.5 w-2.5 rounded-full ${styles.dot}`} />
-        <span className="text-xs font-medium uppercase tracking-wide text-foreground/60">
+    <div className="rounded-xl border border-border bg-card p-3 sm:p-5">
+      {/* flex-wrap : sur les tout petits écrans (iPhone SE...), le libellé
+          passe sous le point plutôt que de déborder de la tuile. */}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${styles.dot}`} />
+        <span className="text-[11px] font-medium uppercase tracking-wide text-foreground/60 sm:text-xs">
           {label}
         </span>
       </div>
-      <p className="mt-2 text-3xl font-semibold text-foreground">{value}</p>
+      <p className="mt-2 text-2xl font-semibold text-foreground sm:text-3xl">
+        {value}
+      </p>
     </div>
   );
 }

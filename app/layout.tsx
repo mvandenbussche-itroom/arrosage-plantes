@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import "./globals.css";
+import { ScanFab } from "./scan-fab";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,6 +19,15 @@ export const metadata: Metadata = {
   title: "Arrosage des plantes — itroom",
   description:
     "Suivi de l'arrosage des plantes du bureau. Scannez, arrosez, c'est à jour.",
+};
+
+// Le viewport (width=device-width...) est déjà défini par défaut par Next.js.
+// On ajoute juste la couleur de la barre du navigateur mobile (charte itroom)
+// et color-scheme pour éviter un rendu sombre inattendu des champs/scrollbars,
+// le design étant volontairement clair uniquement.
+export const viewport: Viewport = {
+  themeColor: "#145a8e",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -59,6 +69,7 @@ export default function RootLayout({
         <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-8">
           {children}
         </main>
+        <ScanFab />
       </body>
     </html>
   );

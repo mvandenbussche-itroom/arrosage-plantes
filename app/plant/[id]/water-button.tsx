@@ -19,7 +19,7 @@ export function WaterButton({ plantId }: { plantId: string }) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-2xl bg-itroom px-6 py-6 text-lg font-semibold text-white shadow-sm transition active:scale-[0.98] disabled:opacity-60"
+        className="w-full touch-manipulation rounded-2xl bg-itroom px-6 py-6 text-lg font-semibold text-white shadow-sm transition active:scale-[0.98] disabled:opacity-60"
       >
         {isPending ? "Enregistrement…" : "💧 J'ai arrosé"}
       </button>

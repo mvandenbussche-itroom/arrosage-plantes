@@ -40,7 +40,9 @@ export default async function PlantPage({
     <div className="mx-auto flex max-w-md flex-col gap-6">
       <Link
         href="/"
-        className="text-sm font-medium text-foreground/50 hover:text-foreground/70"
+        // py-2 -mx-1 : agrandit la zone de tap sans changer le rendu visuel
+        // (utile au pouce sur mobile, sans casser l'alignement avec la carte).
+        className="-mx-1 inline-block w-fit px-1 py-2 text-sm font-medium text-foreground/50 hover:text-foreground/70"
       >
         ← Tableau de bord
       </Link>
@@ -49,11 +51,13 @@ export default async function PlantPage({
         className={`flex flex-col gap-4 rounded-2xl border border-border border-l-4 bg-card p-6 ${styles.border}`}
       >
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-semibold text-foreground">
+          <div className="min-w-0">
+            <h1 className="break-words text-xl font-semibold text-foreground">
               {plant.name}
             </h1>
-            <p className="text-sm text-foreground/60">{plant.location}</p>
+            <p className="break-words text-sm text-foreground/60">
+              {plant.location}
+            </p>
           </div>
           <span
             className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${styles.badge}`}
