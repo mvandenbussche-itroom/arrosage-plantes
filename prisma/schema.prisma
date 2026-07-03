@@ -1,0 +1,21 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+model Plant {
+  id            String    @id @default(cuid())
+  name          String
+  location      String    // ex: "2e étage - open space Nord"
+  frequencyDays Int       // fréquence d'arrosage en jours
+  createdAt     DateTime  @default(now())
+  waterings     Watering[]
+}
+
+model Watering {
+  id        String   @id @default(cuid())
+  plantId   String
+  plant     Plant    @relation(fields: [plantId], references: [id], onDelete: Cascade)
+  wateredAt DateTime @default(now())
+  // pas de user : scan anonyme
+}
